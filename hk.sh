@@ -5,7 +5,7 @@
 ## Copyright (C) 2026 Mike Margreve (mike.margreve@outlook.com)
 ## Permission to copy and modify is granted under the MIT license
 ##
-## Usage: dcc [no arguments]
+## Usage: hk [no arguments]
 
 prompt_continue() {
   local prompt="${1:-Proceed with burn?}"
@@ -49,17 +49,24 @@ for CLEANUP_DIR in "${CLEANUP_DIRS[@]}"; do
     if [ -d "$CLEANUP_DIR" ]; then
 
         log_step "Files older than ${NB_DAYS_TO_KEEP} days in '$CLEANUP_DIR'"
-        FILES_TO_DELETE=$(find "$CLEANUP_DIR" -type f -mtime +$NB_DAYS_TO_KEEP -name '*')
-        if [ -z "$FILES_TO_DELETE" ]; then
+        mapfile -d '' -t FILES_TO_DELETE < <(find "$CLEANUP_DIR" -type f -mtime +"$NB_DAYS_TO_KEEP" -print0)
+        if [ "${#FILES_TO_DELETE[@]}" -eq 0 ]; then
             echo "No files to delete."
             continue
         fi
 
         # Print file list with sizes
-        echo "$FILES_TO_DELETE" | xargs -d '\n' -r ls -lh | awk '{print $9, $5}'
+        for FILE in "${FILES_TO_DELETE[@]}"; do
+            FILE_SIZE=$(du -h --apparent-size -- "$FILE" | awk '{print $1}')
+            printf "%s %s\n" "$FILE" "$FILE_SIZE"
+        done
         
         # Calculate total size and ask for confirmation
-        TOTAL_SIZE=$(echo "$FILES_TO_DELETE" | xargs -d '\n' -r du -ch 2>/dev/null | grep total$ | awk '{print $1}')
+        TOTAL_SIZE=$(
+            printf '%s\0' "${FILES_TO_DELETE[@]}" \
+              | du -ch --files0-from=- 2>/dev/null \
+              | awk '/total$/ {print $1}'
+        )
 
         # Ensure TOTAL_SIZE is a single line
         TOTAL_SIZE=$(echo "$TOTAL_SIZE" | tr -d '\n')
@@ -69,7 +76,7 @@ for CLEANUP_DIR in "${CLEANUP_DIRS[@]}"; do
         if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
             echo "Jettisoning files..."
             # Delete the files
-            find "$CLEANUP_DIR" -type f -mtime +$NB_DAYS_TO_KEEP -name '*' -exec rm -v {} \;
+            printf '%s\0' "${FILES_TO_DELETE[@]}" | xargs -0 rm -v --
         else
             echo "Skipped jettisoning files in '$CLEANUP_DIR'."
         fi
