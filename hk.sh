@@ -26,7 +26,7 @@ log_step() {
 }
 
 log_warn() {
-  printf "WARN: %s\n" "$1"
+  printf "\033[1;33mWARN: %s\033[0m\n" "$1"
   prompt_continue "Continue burn anyway"
 }
 
@@ -57,7 +57,7 @@ for CLEANUP_DIR in "${CLEANUP_DIRS[@]}"; do
         # Print file list with sizes
         for FILE in "${FILES_TO_DELETE[@]}"; do
             FILE_SIZE=$(du -h --apparent-size -- "$FILE" | awk '{print $1}')
-            printf "%s %s\n" "$FILE" "$FILE_SIZE"
+            printf "\033[0;31m%s %s\033[0m\n" "$FILE" "$FILE_SIZE"
         done
         
         # Calculate total size and ask for confirmation
