@@ -3,23 +3,23 @@
 ## Script to clean up disk space (unnecessary or old files, cache, ...)
 ##
 ## Copyright (C) 2026 Mike Margreve (mike.margreve@outlook.com)
-## Permission to copy and modify is granted under the foo license
+## Permission to copy and modify is granted under the MIT license
 ##
 ## Usage: dcc [no arguments]
 
 prompt_continue() {
-  local prompt="${1:-Continue?}"
+  local prompt="${1:-Proceed with burn?}"
   printf "%s [y/N]: " "$prompt"
   read -r ans
   case "${ans:-}" in
     y|Y|yes|YES) return 0 ;;
-    *) echo "Aborted by user."; exit 1 ;;
+    *) echo "Abort acknowledged. Holding position."; exit 1 ;;
   esac
 }
 
 log_section() {
   printf "\n\033[1;34m[%s]\033[0m\n" "$1"
-  prompt_continue "Continue"
+  prompt_continue "Continue burn"
 }
 
 log_step() {
@@ -28,7 +28,7 @@ log_step() {
 
 log_warn() {
   printf "WARN: %s\n" "$1"
-  prompt_continue "Continue anyway"
+  prompt_continue "Continue burn anyway"
 }
 
 # ---------------------------------------------------
@@ -64,14 +64,14 @@ for CLEANUP_DIR in "${CLEANUP_DIRS[@]}"; do
         # Ensure TOTAL_SIZE is a single line
         TOTAL_SIZE=$(echo "$TOTAL_SIZE" | tr -d '\n')
         printf '\n'
-        read -p "Delete these files (Total size: $TOTAL_SIZE)? [y/N]: " CONFIRM
+        read -p "Jettison these files (Total size: $TOTAL_SIZE)? [y/N]: " CONFIRM
 
         if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-            echo "Deleting files..."
+            echo "Jettisoning files..."
             # Delete the files
             find "$CLEANUP_DIR" -type f -mtime +$NB_DAYS_TO_KEEP -name '*' -exec rm -v {} \;
         else
-            echo "Skipped deleting files in '$CLEANUP_DIR'."
+            echo "Skipped jettisoning files in '$CLEANUP_DIR'."
         fi
     else
         log_step "Directory '$CLEANUP_DIR' does not exist. Skipping..."
@@ -106,7 +106,7 @@ REMOVE_DIRS=(
     "$HOME/cpdb"
 )
 
-log_section "Removing folders"
+log_section "Removing unused folders"
 rm -rfv -- "${REMOVE_DIRS[@]}"
 
 # ---------------------------------------------------

@@ -18,4 +18,4 @@ chmod +x hk.sh
 
 ## Credits
 
-By Mike Margreve (mike.margreve@outlook.com) and licensed under MIT. The original source can be found here: https://github.com/margrevm/ubuntu-cleanup
+By Mike Margreve (mike.margreve@outlook.com) and licensed under MIT. The original source can be found here: https://github.com/margrevm/housekeep.git
