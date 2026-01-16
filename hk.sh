@@ -5,7 +5,31 @@
 ## Copyright (C) 2026 Mike Margreve (mike.margreve@outlook.com)
 ## Permission to copy and modify is granted under the foo license
 ##
-## Usage: cleanup [no arguments]
+## Usage: dcc [no arguments]
+
+prompt_continue() {
+  local prompt="${1:-Continue?}"
+  printf "%s [y/N]: " "$prompt"
+  read -r ans
+  case "${ans:-}" in
+    y|Y|yes|YES) return 0 ;;
+    *) echo "Aborted by user."; exit 1 ;;
+  esac
+}
+
+log_section() {
+  printf "\n\033[1;34m[%s]\033[0m\n" "$1"
+  prompt_continue "Continue"
+}
+
+log_step() {
+  printf "\033[0;34m➜ %s\033[0m\n" "$1"
+}
+
+log_warn() {
+  printf "WARN: %s\n" "$1"
+  prompt_continue "Continue anyway"
+}
 
 # ---------------------------------------------------
 # Remove old files
@@ -20,11 +44,11 @@ CLEANUP_DIRS=(
 NB_DAYS_TO_KEEP=60
 
 # Remove files older than NB_DAYS_TO_KEEP days in the specified folders
-printf '\033[1;31m[Removing old files & folders]\033[0m\n'
+log_section "Removing old files & folders"
 for CLEANUP_DIR in "${CLEANUP_DIRS[@]}"; do
     if [ -d "$CLEANUP_DIR" ]; then
 
-        printf '\033[0;31m➜ Files older than %s days in '\''%s'\''\033[0m\n' "$NB_DAYS_TO_KEEP" "$CLEANUP_DIR"
+        log_step "Files older than ${NB_DAYS_TO_KEEP} days in '$CLEANUP_DIR'"
         FILES_TO_DELETE=$(find "$CLEANUP_DIR" -type f -mtime +$NB_DAYS_TO_KEEP -name '*')
         if [ -z "$FILES_TO_DELETE" ]; then
             echo "No files to delete."
@@ -50,7 +74,7 @@ for CLEANUP_DIR in "${CLEANUP_DIRS[@]}"; do
             echo "Skipped deleting files in '$CLEANUP_DIR'."
         fi
     else
-        printf '\033[0;31m➜ Directory '\''%s'\'' does not exist. Skipping...\033[0m\n' "$CLEANUP_DIR"
+        log_step "Directory '$CLEANUP_DIR' does not exist. Skipping..."
     fi
 done
 
@@ -62,12 +86,12 @@ REMOVE_EMPTY_DIRS=(
     "$HOME/Pictures/Screenshots"
 )
 
-printf '\033[0;31m➜ Removing empty folders\033[0m\n'
+log_section "Removing empty folders"
 for REMOVE_EMPTY_DIR in "${REMOVE_EMPTY_DIRS[@]}"; do
     if [ -d "$REMOVE_EMPTY_DIR" ]; then
         if [ -z "$(find "$REMOVE_EMPTY_DIR" -depth -type d -empty)" ]; then
             # print message that nothing has been found if no empty folders were found
-            printf 'No empty folders found in '\''%s'\''\n' "$REMOVE_EMPTY_DIR"
+            log_step "No empty folders found in '$REMOVE_EMPTY_DIR'"
         fi  
 
         find "$REMOVE_EMPTY_DIR" -depth -type d -empty -exec rmdir -v {} \;
@@ -75,18 +99,18 @@ for REMOVE_EMPTY_DIR in "${REMOVE_EMPTY_DIRS[@]}"; do
 done
 
 # ---------------------------------------------------
-# Remove dirs
+# Remove dirs alltogether
 # ---------------------------------------------------
 REMOVE_DIRS=(
     "$HOME/Screencasts"
     "$HOME/cpdb"
 )
 
-printf '\033[0;31m➜ Removing folders\033[0m\n'
+log_section "Removing folders"
 rm -rfv -- "${REMOVE_DIRS[@]}"
 
 # ---------------------------------------------------
 # Clean trash
 # ---------------------------------------------------
+log_section "Clean trash"
 # Trash is cleaned by setting a period in Settings->Privacy->File History & Trash
-
