@@ -115,7 +115,21 @@ REMOVE_DIRS=(
 )
 
 log_section "Removing unused folders"
-rm -rfv -- "${REMOVE_DIRS[@]}"
+EXISTING_REMOVE_DIRS=()
+for REMOVE_DIR in "${REMOVE_DIRS[@]}"; do
+    if [ -e "$REMOVE_DIR" ]; then
+        EXISTING_REMOVE_DIRS+=("$REMOVE_DIR")
+    fi
+done
+
+if [ "${#EXISTING_REMOVE_DIRS[@]}" -eq 0 ]; then
+    log_step "No removable folders found."
+else
+    printf "Targets:\n"
+    printf " - %s\n" "${EXISTING_REMOVE_DIRS[@]}"
+    prompt_continue "Proceed with folder jettison"
+    rm -rfv -- "${EXISTING_REMOVE_DIRS[@]}"
+fi
 
 # ---------------------------------------------------
 # Clean trash
