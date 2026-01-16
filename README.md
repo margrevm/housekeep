@@ -1,28 +1,20 @@
-# ubuntu-cleanup
+# housekeep
 
-Maintenance script to clean up disk space (unnecessary or old files, cache, ...) 
+Housekeep is a small, interactive maintenance script for Linux that removes old files and unnecessary folders. It reports what it will
+discard, and asks for go/no-go at each stage.
 
-## Features
+## What it does
 
-- 📅 Will remove files older than a specified number of days in specified folders;
-- 🗑️ Cleaning cache and temporary files.
-
-This script will not cleanup packages. Check out [ubuntu-update](https://github.com/margrevm/ubuntu-update.git) for this purpose.
-
-Other things you can do:
-
-- go to Settings ⇾ Privacy ⇾ File History and Trash. Set 'Automatically Delete Trash Content' and then choose at what interval you want to clear the trash.
+- Purges files older than a set number of days in selected directories.
+- Removes empty folders in those same paths.
+- Deletes a short list of known throwaway directories.
 
 ## Running the script
 
 ```sh
-chmod +x cleanup.sh
-./cleanup.sh
+chmod +x hk.sh
+./hk.sh
 ```
-
-## Supported versions
-
-- Ubuntu 25.04
 
 ## Credits
 
