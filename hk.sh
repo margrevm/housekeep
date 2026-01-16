@@ -133,5 +133,5 @@ fi
 # ---------------------------------------------------
 # Clean trash
 # ---------------------------------------------------
-log_section "Clean trash"
+# log_section "Clean trash"
 # Trash is cleaned by setting a period in Settings->Privacy->File History & Trash
