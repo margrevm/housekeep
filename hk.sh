@@ -96,12 +96,13 @@ REMOVE_EMPTY_DIRS=(
 log_section "Removing empty folders"
 for REMOVE_EMPTY_DIR in "${REMOVE_EMPTY_DIRS[@]}"; do
     if [ -d "$REMOVE_EMPTY_DIR" ]; then
-        if [ -z "$(find "$REMOVE_EMPTY_DIR" -depth -type d -empty)" ]; then
-            # print message that nothing has been found if no empty folders were found
+        mapfile -d '' -t EMPTY_DIRS < <(find "$REMOVE_EMPTY_DIR" -depth -type d -empty -print0)
+        if [ "${#EMPTY_DIRS[@]}" -eq 0 ]; then
             log_step "No empty folders found in '$REMOVE_EMPTY_DIR'"
-        fi  
+            continue
+        fi
 
-        find "$REMOVE_EMPTY_DIR" -depth -type d -empty -exec rmdir -v {} \;
+        printf '%s\0' "${EMPTY_DIRS[@]}" | xargs -0 rmdir -v --
     fi
 done
 
