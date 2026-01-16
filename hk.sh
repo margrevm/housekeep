@@ -19,7 +19,6 @@ prompt_continue() {
 
 log_section() {
   printf "\n\033[1;34m[%s]\033[0m\n" "$1"
-  prompt_continue "Continue burn"
 }
 
 log_step() {
