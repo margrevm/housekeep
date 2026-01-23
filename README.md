@@ -18,4 +18,4 @@ chmod +x hk.sh
 
 ## Credits
 
-By Mike Margreve and licensed under MIT. The original source can be found here: <https://github.com/margrevm/housekeep.git>
+By Mike Margreve and licensed under MIT. The original source can be found here: <https://github.com/margrevm/housekeep.git>. Made with love from 🇧🇪
